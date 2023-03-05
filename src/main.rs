@@ -10,7 +10,7 @@ fn main() {
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_plugins(DefaultPlugins)
         .add_startup_system(setup)
-        .add_system(collision_detection)
+//        .add_system(collision_detection)
         .add_system(update_position)
         .run();
 }
@@ -30,38 +30,43 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     commands.spawn(Camera2dBundle::default());
-
-    for i in 1..4 {
-        // let pos = Vec3
+    
+    let mut pos = Vec3::new(0.0, 0.0, 0.0);
+    for _i in 1..5 {
         commands.spawn((MaterialMesh2dBundle {
                 mesh: meshes.add(shape::Circle::new(10.).into()).into(),
                 material: materials.add(ColorMaterial::from(PARTICLE_COLOR)),
-                transform: Transform::from_translation(Vec3::new(5.0 * (i as f32) , 100.0 * (i as f32), 0.)),
+                transform: Transform::from_translation(pos),
                 ..default()
             },
             Particle,
             Collider,
-            Velocity(Vec2::new(10.0, 0.0)),
+            Velocity(Vec2::new(2.0, 0.0)),
         ));
     }
 }
 
 
 fn update_position(mut query: Query<(&mut Velocity, &mut Transform)>){
+
     for (mut velocity, mut transform) in &mut query{
+        
+        // How the hell does actual physics work lmao
+
         transform.translation.x += velocity.x; //* PHYSICS_STEP;
         transform.translation.y += velocity.y; //* PHYSICS_STEP;
 
         // pull towards center test
+        
         velocity.x -= transform.translation.x / 1000.0;
         velocity.y -= transform.translation.y / 1000.0;
+        
     }
 }
 
 fn collision_detection(mut query: Query<(&mut Velocity, &Transform, &Collider)>){
     
     let mut combinations = query.iter_combinations_mut();
-    println!("\nNEW COMBO");
     while let Some([mut a1, mut a2]) = combinations.fetch_next() {
         // println!("{}",a1.1.translation);
         // println!("{}",a2.1.translation);
