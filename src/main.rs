@@ -33,8 +33,8 @@ fn setup(
 ) {
     commands.spawn(Camera2dBundle::default());
     
-    let pos = Vec3::new(2.0, 0.0, 0.0);
-    for _ in 1..2 {
+    let pos = Vec3::new(5.0, 0.0, 0.0);
+    for _ in 1..3 {
         commands.spawn((MaterialMesh2dBundle {
                 mesh: meshes.add(shape::Circle::new(10.).into()).into(),
                 material: materials.add(ColorMaterial::from(PARTICLE_COLOR)),
@@ -42,8 +42,8 @@ fn setup(
                 ..default()
             },
             Particle {
-                prev_pos: pos.clone(),
-                acceleration: Vec3::new(0.0,0.0,0.0), 
+                prev_pos: Vec3::new(0.0, 0.0, 0.0),
+                acceleration: Vec3::new(0.0, 0.0, 0.0), 
             }
         ));
     }
@@ -61,16 +61,19 @@ fn constraint(mut query: Query<&mut Transform>) {
     for mut transf in &mut query {
         let to_transf = Vec2::new(transf.translation.x - constraint_pos.x, transf.translation.y - constraint_pos.y);
         let dist = to_transf.length();
-        // let dist = (to_transf.x * to_transf.x) + (to_transf.y * to_transf.y);
-        if dist > radius - 10.0 {
+        if dist > radius + 10.0{
             let n = to_transf / dist;
-            let new_pos = constraint_pos + n * (dist-10.0);
+            let new_pos = constraint_pos + n * (radius+10.0);
             transf.translation.x = new_pos.x;
             transf.translation.y = new_pos.y;
         }
-    }
-    
+    }   
 }
+
+
+
+
+
 
 fn apply_physics(mut query: Query<(&mut Particle, &mut Transform)>, time: Res<Time>) { 
     let dt = time.delta().as_secs_f32();
